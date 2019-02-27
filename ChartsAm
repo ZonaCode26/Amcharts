@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+<!-- Styles -->
+
+<style>
+
+#chartdiv {
+  width: 100%;
+  height: 500px;
+}
+
+
+</style>
+
+
+<!-- HTML -->
+<div id="chartdiv"></div>
+<!-- Chart code -->
+<script>
+// Themes begin
+am4core.useTheme(am4themes_animated);
+
+
+// Themes end
+
+// Create chart instance
+var chart = am4core.create("chartdiv", am4charts.XYChart);
+chart.colors.step = 2;
+
+// Create daily series and related axes
+var dateAxis1 = chart.xAxes.push(new am4charts.DateAxis());
+dateAxis1.renderer.grid.template.location = 0;
+dateAxis1.renderer.minGridDistance = 40;
+
+var valueAxis1 = chart.yAxes.push(new am4charts.ValueAxis());
+/*
+var series1 = chart.series.push(new am4charts.ColumnSeries());
+series1.dataFields.valueY = "value";
+series1.dataFields.dateX = "date";
+series1.data = generateDailyData();
+series1.xAxis = dateAxis1;
+series1.yAxis = valueAxis1;
+series1.tooltipText = "{dateX}: [bold]{valueY}[/]";
+
+*/
+
+var series1 = chart.series.push(new am4charts.LineSeries());
+series1.dataFields.valueY = "value";
+series1.dataFields.dateX = "date";
+series1.data = generateDailyData();
+series1.xAxis = dateAxis1;
+series1.yAxis = valueAxis1;
+series1.tooltipText = "{dateX}: [bold]{valueY}[/]";
+  var interfaceColors = new am4core.InterfaceColorSet();  
+transform(series1,"triangle")
+
+// Create hourly series and related axes
+var dateAxis2 = chart.xAxes.push(new am4charts.DateAxis());
+dateAxis2.renderer.grid.template.location = 0;
+dateAxis2.renderer.minGridDistance = 40;
+dateAxis2.renderer.labels.template.disabled = true;
+dateAxis2.renderer.grid.template.disabled = true;
+dateAxis2.renderer.tooltip.disabled = true;
+
+var valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
+valueAxis2.renderer.opposite = true;
+valueAxis2.renderer.grid.template.disabled = true;
+valueAxis2.renderer.labels.template.disabled = true;
+valueAxis2.renderer.tooltip.disabled = true;
+
+var series2 = chart.series.push(new am4charts.LineSeries());
+series2.dataFields.valueY = "value";
+series2.dataFields.dateX = "date";
+series2.data = generateHourlyData();
+series2.xAxis = dateAxis2;
+series2.yAxis = valueAxis2;
+series2.strokeWidth = 3;
+series2.tooltipText = "{dateX.formatDate('yyyy-MM-dd hh:00')}: [bold]{valueY}[/]";
+
+transform(series2,"rectangle")
+
+// Add cursor
+chart.cursor = new am4charts.XYCursor();
+
+function generateDailyData() {
+    var firstDate = new Date();
+    firstDate.setDate(firstDate.getDate() - 10);
+    firstDate.setHours(0, 0, 0, 0);
+    var data = [];
+    for(var i = 0; i < 10; i++) {
+      var newDate = new Date(firstDate);
+      newDate.setDate(newDate.getDate() + i);
+      data.push({
+        date: newDate,
+        value: Math.round(Math.random() * 12) + 1
+      });
+    }
+  return data;
+}
+
+function generateHourlyData() {
+    var firstDate = new Date();
+    firstDate.setDate(firstDate.getDate() - 10);
+    var data = [];
+    for(var i = 0; i < 10 * 24; i++) {
+        var newDate = new Date(firstDate);
+      newDate.setHours(newDate.getHours() + i);
+
+        if (i == 0) {
+            var value = Math.round(Math.random() * 10) + 1;
+        } else {
+            var value = Math.round(data[data.length - 1].value / 100 * (90 + Math.round(Math.random() * 20)) * 100) / 100;
+        }
+      data.push({
+        date: newDate,
+        value: value
+      });
+    }
+  return data;
+}
+
+function transform(series1,bullet){
+
+switch(series1,bullet) {
+    case "triangle":
+      var bullet = series1.bullets.push(new am4charts.Bullet());
+      bullet.width = 12;
+      bullet.height = 12;
+      bullet.horizontalCenter = "middle";
+      bullet.verticalCenter = "middle";
+      
+      var triangle = bullet.createChild(am4core.Triangle);
+      triangle.stroke = interfaceColors.getFor("background");
+      triangle.strokeWidth = 2;
+      triangle.direction = "top";
+      triangle.width = 12;
+      triangle.height = 12;
+      break;
+    case "rectangle":
+      var bullet = series1.bullets.push(new am4charts.Bullet());
+      bullet.width = 10;
+      bullet.height = 10;
+      bullet.horizontalCenter = "middle";
+      bullet.verticalCenter = "middle";
+      
+      var rectangle = bullet.createChild(am4core.Rectangle);
+      rectangle.stroke = interfaceColors.getFor("background");
+      rectangle.strokeWidth = 2;
+      rectangle.width = 10;
+      rectangle.height = 10;
+      break;
+    default:
+      var bullet = series1.bullets.push(new am4charts.CircleBullet());
+      bullet.circle.stroke = interfaceColors.getFor("background");
+      bullet.circle.strokeWidth = 2;
+      break;
+  }
+  
+}
+</script>
+
+</body>
+</html>
